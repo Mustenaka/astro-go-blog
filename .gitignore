@@ -1,6 +1,7 @@
 # Node
 node_modules/
-dist/
+site/dist/
+admin/dist/
 .astro/
 *.tsbuildinfo
 .pnpm-store/
