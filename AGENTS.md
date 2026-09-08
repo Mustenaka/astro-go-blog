@@ -12,7 +12,7 @@
 
 | 部分 | 目录 | 职责 | 明确不做的事 |
 |---|---|---|---|
-| 前台 | `site/` | Astro 5，构建期生成静态 HTML，Nginx 直出。交互用 Vue 3 岛屿 | 不做服务端渲染，不在运行时读数据库 |
+| 前台 | `site/` | Astro，构建期生成静态 HTML，Nginx 直出。交互用 Vue 3 岛屿 | 不做服务端渲染，不在运行时读数据库 |
 | 内容 | `content/` | Markdown/MDX 是唯一真实来源，进 Git | 内容不进数据库 |
 | 后端 | `api/` | Go + SQLite。管理员认证、资产上传签发与索引、计数与点赞、构建触发、GitHub webhook、MCP 服务器、内嵌最小后台 | 不存文章，不渲染页面 |
 | 后台 | `admin/` | Vue 3 SPA，构建后 embed 进 Go 二进制，路径 `/admin/` | 第一版不做文章编辑器 |
@@ -27,7 +27,7 @@
 
 前台与后台：
 - Node 22，pnpm 10，pnpm workspace 管理 `site/` 与 `admin/`。
-- Astro 5 最新稳定版，TypeScript strict。
+- Astro 最新稳定版（当前 7.x），TypeScript strict。
 - 集成：`@astrojs/vue`、`@astrojs/mdx`、`@astrojs/sitemap`、`@astrojs/rss`。
 - 样式：Tailwind CSS v4，通过 `@tailwindcss/vite`。
 - 公式：`remark-math` + `rehype-katex`，KaTeX 样式自托管，只在 `math: true` 的页面加载。
@@ -52,7 +52,7 @@
 ## 4. 仓库布局
 
 ```
-mustenaka-site/
+astro-go-blog/
   AGENTS.md  CLAUDE.md  README.md
   .gitignore  .gitattributes  .env.example  .mcp.json
   package.json  pnpm-workspace.yaml
@@ -181,3 +181,35 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 - 对不确定的第三方 API，先看官方文档或 `node_modules` 与 Go module cache 里的类型定义，不要凭记忆猜。
 - 每个阶段结束用 conventional commits 风格提交，一个阶段一个或几个提交。
 - 阶段报告固定四段：做了什么、怎么验证的、没做或有疑问的、新增依赖及理由。
+
+## 10. 常用命令
+
+在仓库根目录执行。开发机是 PowerShell，命令同样适用于 bash。
+
+| 目的 | 命令 | 说明 |
+|---|---|---|
+| 安装依赖 | `pnpm install` | 首次或 lockfile 变化后。`site/.env` 不存在时先 `Copy-Item site/.env.example site/.env` |
+| 开发服务器 | `pnpm -C site dev` | http://localhost:4321 ，草稿可见，`/assets/` 代理到 http://localhost:8080 |
+| 类型检查 | `pnpm -C site check` | 检查 `.astro`、`.ts`、`.vue`，含 `astro.config.ts` |
+| 生产构建 | `pnpm -C site build` | 输出 `site/dist/`，`draft: true` 的文章被排除，`/assets/` 改写为 `PUBLIC_ASSET_BASE` |
+| 预览构建 | `pnpm -C site preview` | 本地静态预览 `site/dist/` |
+
+根 `package.json` 提供同名快捷方式：`pnpm dev`、`pnpm build`、`pnpm check`、`pnpm preview`。
+
+内容集合的定义在 `site/src/content.config.ts`。它从 `../content/` 读取，front matter 用 zod `strictObject` 校验：字段类型错误或出现未定义字段，`build` 与 `dev` 都会失败并指出文件与字段。
+
+### 新增文章
+
+1. 在 `content/posts/<发布年份>/` 新建 `<slug>.mdx`，slug 只用小写字母、数字和连字符，全站唯一。
+2. front matter 按第 5.1 节填写。`title`、`description`、`date`、`tags`、`categories` 必填。
+3. 图片、附件一律写 `/assets/<key>`，key 规则见第 5.4 节。
+4. 需要公式时设 `math: true`。需要 Vue 岛屿时在正文里 `import X from '@components/X.vue'`，用 `<X client:visible />`。
+5. 写完跑 `pnpm -C site build` 确认通过。
+
+### 新增作品
+
+在 `content/works/` 新建 `<slug>.mdx`，front matter 按第 5.2 节，`cover`、`stack`、`period`、`status` 必填。`demo` 字段的岛屿与 iframe 支持在后续阶段接入。
+
+### 新增资产
+
+阶段 1 尚无上传通道。约定已经生效：内容里写 `/assets/img/YYYY/MM/<name>.webp` 这样的路径，构建期自动改写为 CDN 地址。上传工具与 MCP 在后续阶段提供。
