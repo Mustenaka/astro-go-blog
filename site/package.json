@@ -24,11 +24,13 @@
     "rehype-katex": "7.0.1",
     "remark-math": "6.0.0",
     "tailwindcss": "4.3.3",
+    "three": "0.185.1",
     "vue": "3.5.42"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@types/node": "22.20.1",
+    "@types/three": "0.185.4",
     "pagefind": "1.5.2",
     "typescript": "5.9.3",
     "vite": "8.2.2"

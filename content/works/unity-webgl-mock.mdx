@@ -1,0 +1,28 @@
+---
+title: Unity WebGL 嵌入样板
+summary: 用一个最小的静态页面模拟 Unity WebGL 构建的托管与嵌入流程：Brotli 预压缩、COOP/COEP 响应头、点击后加载的 iframe。
+period:
+  from: 2026-09
+stack: [Unity, WebGL, Brotli, iframe]
+cover: /assets/img/2026/09/unity-mock-cover-d2b4f8.webp
+demo:
+  kind: iframe
+  src: /assets/demos/unity-mock/1.0.0/index.html
+  aspect: 16/9
+featured: true
+order: 20
+status: wip
+---
+
+## 这是什么
+
+真实的 Unity WebGL 构建还没有提供，这里用 `demos/unity-mock/1.0.0/` 下的两个文件走通整条链路：
+
+- `index.html`：与 Unity 导出的页面结构一致，用 `<script src="Build/mock.framework.js.br">` 加载框架文件。
+- `Build/mock.framework.js.br`：Brotli 预压缩的 JS。资产服务器必须返回 `Content-Encoding: br` 与 `text/javascript`，浏览器才会执行它；同时 `demos/` 前缀带 `Cross-Origin-Opener-Policy: same-origin` 与 `Cross-Origin-Embedder-Policy: require-corp`，这是 Unity 多线程（SharedArrayBuffer）所需的隔离头。
+
+上面的演示区在点击前不会下载任何东西；点击后 iframe 才开始加载，右下角可全屏。
+
+## 换成真实构建
+
+导出设置与上传步骤见 `docs/demos.md`。把 `demo.src` 指向新版本的 `index.html` 即可。

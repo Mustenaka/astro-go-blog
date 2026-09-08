@@ -1,0 +1,29 @@
+---
+/** Renders a work's `gallery` front matter: images open in the lightbox, videos use <Video>. */
+import type { Work } from '@lib/content';
+import { assetUrl } from '@lib/assets';
+import Video from './Video.astro';
+
+interface Props {
+  items: NonNullable<Work['data']['gallery']>;
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <section class="gallery" aria-label="图集">
+      {items.map((item) =>
+        item.type === 'video' ? (
+          <Video src={item.src} poster={item.poster} caption={item.caption} />
+        ) : (
+          <figure class="gallery-item">
+            <img src={assetUrl(item.src)} alt={item.caption ?? ''} loading="lazy" decoding="async" data-lightbox />
+            {item.caption && <figcaption>{item.caption}</figcaption>}
+          </figure>
+        ),
+      )}
+    </section>
+  )
+}

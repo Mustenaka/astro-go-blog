@@ -1,0 +1,36 @@
+---
+/**
+ * <Video src="/assets/video/2026/09/clip.mp4" webm="/assets/video/2026/09/clip.webm" poster="..." caption="..." />
+ * preload="none": nothing downloads until play. Short clips only; long videos go to Bilibili embeds.
+ */
+import { assetUrl } from '@lib/assets';
+
+interface Props {
+  src: string;
+  webm?: string;
+  poster?: string;
+  caption?: string;
+  loop?: boolean;
+  muted?: boolean;
+  autoplay?: boolean;
+}
+
+const { src, webm, poster, caption, loop = false, muted = false, autoplay = false } = Astro.props;
+---
+
+<figure class="video-figure">
+  <video
+    controls
+    playsinline
+    preload="none"
+    poster={poster ? assetUrl(poster) : undefined}
+    loop={loop}
+    muted={muted || autoplay}
+    autoplay={autoplay}
+  >
+    {webm && <source src={assetUrl(webm)} type="video/webm" />}
+    <source src={assetUrl(src)} type="video/mp4" />
+    你的浏览器不支持视频播放，<a href={assetUrl(src)}>下载视频</a>。
+  </video>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

@@ -890,3 +890,65 @@ main {
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Demos, video, gallery (works pages and MDX)                         */
+/* ------------------------------------------------------------------ */
+
+.demo-figure,
+.video-figure {
+  margin: var(--space-6) 0;
+  max-width: var(--measure);
+}
+.demo-figure figcaption,
+.video-figure figcaption,
+.gallery-item figcaption {
+  text-align: center;
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+}
+.demo-island {
+  min-height: 12rem;
+}
+.demo-loading,
+.demo-error {
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+}
+.demo-error {
+  color: var(--color-danger);
+}
+.video-figure video {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: #000;
+}
+.gallery {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  max-width: var(--measure);
+}
+.gallery-item {
+  margin: 0;
+}
+.gallery-item img {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-md);
+  cursor: zoom-in;
+}
+.work-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+}

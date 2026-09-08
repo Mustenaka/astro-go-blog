@@ -281,9 +281,21 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 - `robots.txt` 策略在 `site/src/robots.config.ts`。
 - 旧站固定 301 映射在 `site/src/legacy-redirects.json`，构建后与文章的 `legacyUrls` 一起写进 `site/dist/redirects.map`。
 
-### 新增作品
+### 新增一个作品
 
-在 `content/works/` 新建 `<slug>.mdx`，front matter 按第 5.2 节，`cover`、`stack`、`period`、`status` 必填。`demo` 字段的岛屿与 iframe 支持在后续阶段接入。
+1. 先上传封面（`img/`）、图集图片与视频（`video/`），拿到 `/assets/...` 路径。
+2. 在 `content/works/` 新建 `<slug>.mdx`，front matter 按第 5.2 节：`title`、`summary`、`period.from`（`YYYY-MM`）、`stack`、`cover`、`status` 必填；`featured: true` 上首页，`order` 小在前。
+3. 有演示时填 `demo`：three.js 岛屿写 `{ kind: island, name: <注册名> }`，Unity WebGL 写 `{ kind: iframe, src: /assets/demos/<name>/<version>/index.html, aspect: 16/9 }`。
+4. 图集填 `gallery`（`type: image|video`，`src`，视频加 `poster`）。
+5. `links.post` 指向相关文章路径，`links.repo` 指向仓库。
+6. 跑 `pnpm -C site build`；`/works/<slug>/` 与 `/works.json` 里应出现它。
+
+### 新增一个 demo
+
+1. 新建 `site/src/demos/<name>/index.vue`，资源在 `onMounted` 创建、`onBeforeUnmount` 全部释放（参考 `particles`）。
+2. `site/src/demos/registry.ts` 加一行 `<name>: () => import('./<name>/index.vue')`。
+3. 作品页用 `demo: { kind: island, name: <name> }`；文章里 `import Demo from '@components/Demo.astro'` 后 `<Demo name="<name>" />`。名字未注册时构建失败。
+4. three.js 只能出现在 demo 的 chunk 里，不要在公共组件静态 import。细节与 Unity 构建导出设置见 `docs/demos.md`。
 
 ### 新增资产
 

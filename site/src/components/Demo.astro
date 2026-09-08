@@ -1,0 +1,26 @@
+---
+/**
+ * <Demo name="particles" /> mounts the registered demo as a Vue island when it scrolls into view.
+ * Unknown names fail the build here, at render time, instead of showing an empty box.
+ * Usable in .astro pages and in MDX (`import Demo from '@components/Demo.astro'`).
+ */
+import DemoIsland from '../demos/DemoIsland.vue';
+import { demoNames, isDemoName } from '../demos/registry';
+
+interface Props {
+  name: string;
+  /** Optional caption under the demo. */
+  caption?: string;
+}
+
+const { name, caption } = Astro.props;
+
+if (!isDemoName(name)) {
+  throw new Error(`<Demo name="${name}" />: unknown demo. Registered demos: ${demoNames.join(', ')} (see site/src/demos/registry.ts)`);
+}
+---
+
+<figure class="demo-figure">
+  <DemoIsland client:visible name={name} />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

@@ -1,0 +1,43 @@
+---
+title: 在文章里嵌入可交互 demo 与视频
+description: 演示 <Demo> 与 <Video> 两个组件：three.js 粒子岛屿按需加载，视频用双源与海报图、点击才下载。
+date: 2026-09-08
+tags: [three.js, demo, 视频]
+categories: [站点建设]
+---
+
+import Demo from '@components/Demo.astro';
+import Video from '@components/Video.astro';
+
+文章和作品页共用同一套 demo 组件。下面这个粒子演示是 three.js 岛屿，滚动到这里时才加载 three.js（约 150 KB gzip），滚出视口时暂停渲染，离开页面时释放几何体、材质与渲染器。
+
+<Demo name="particles" caption="拖动滑块改粒子数与重力。" />
+
+写法：
+
+```mdx
+import Demo from '@components/Demo.astro';
+
+<Demo name="particles" caption="说明文字" />
+```
+
+`name` 必须在 `site/src/demos/registry.ts` 里注册，写错会在构建时报错而不是运行时空白。
+
+## 视频
+
+短视频直接上传到 `video/`，`preload="none"`，海报图先显示，点击才下载。同时给 WebM 与 MP4 两个来源：
+
+<Video
+  src="/assets/video/2026/09/particles-demo-a4ae0b.mp4"
+  webm="/assets/video/2026/09/particles-demo-7d069b.webm"
+  poster="/assets/img/2026/09/particles-demo-poster-e5af08.webp"
+  caption="ffmpeg 生成的六秒测试片段。"
+/>
+
+```mdx
+import Video from '@components/Video.astro';
+
+<Video src="/assets/video/.../clip.mp4" webm="/assets/video/.../clip.webm" poster="/assets/img/.../poster.webp" caption="说明" />
+```
+
+长视频不要直传，用 B 站嵌入。

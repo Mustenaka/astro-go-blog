@@ -7,11 +7,19 @@ role: 独立开发
 stack: [Unity, C#, Compute Shader, SPH]
 links:
   repo: https://github.com/Mustenaka/AdaptorPhysX
-cover: /assets/img/2026/09/adaptor-physx-cover.webp
+  post: /posts/demo-showcase/
+cover: /assets/img/2026/09/adaptor-physx-cover-e25ffc.webp
 gallery:
   - type: image
-    src: /assets/img/2026/09/adaptor-physx-01.webp
-    caption: SPH 流体在 Unity 中的实时渲染
+    src: /assets/img/2026/09/adaptor-physx-cover-e25ffc.webp
+    caption: 封面（占位图，后续换成真实截图）
+  - type: video
+    src: /assets/video/2026/09/particles-demo-a4ae0b.mp4
+    poster: /assets/img/2026/09/particles-demo-poster-e5af08.webp
+    caption: 演示视频（ffmpeg 生成的测试片段，六秒）
+demo:
+  kind: island
+  name: particles
 featured: true
 order: 10
 status: active
@@ -20,6 +28,8 @@ status: active
 ## 简介
 
 AdaptorPhysX 是一个 Unity 物理仿真适配项目。目标是把自研的粒子法求解器（SPH 及其变体）以尽量少的胶水代码接入 Unity 的场景、渲染与调试工具链。
+
+上面的粒子演示是 three.js 岛屿：几百个粒子在盒子里受重力下落、碰壁反弹，并带一点旋转的涡流。它只在滚动到可见时才加载 three.js，滚出视口时暂停渲染。
 
 ## 主要内容
 
@@ -30,4 +40,4 @@ AdaptorPhysX 是一个 Unity 物理仿真适配项目。目标是把自研的粒
 
 ## 状态
 
-持续开发中。演示（`demo` 字段）留到后续阶段接入。
+持续开发中。

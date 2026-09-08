@@ -2,6 +2,9 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ArticleScripts from '../../components/ArticleScripts.astro';
+import Demo from '../../components/Demo.astro';
+import UnityEmbed from '../../components/UnityEmbed.astro';
+import Gallery from '../../components/Gallery.astro';
 import { getWorks, workUrl } from '@lib/content';
 import { assetUrl } from '@lib/assets';
 import { softwareSourceCodeJsonLd } from '@lib/seo';
@@ -18,28 +21,38 @@ const statusLabel = { active: '进行中', wip: '开发中', archived: '已归�
 ---
 
 <Base title={data.title} description={data.summary} path={workUrl(work.id)} image={assetUrl(data.cover)} jsonLd={[softwareSourceCodeJsonLd(work)]}>
-  <article class="measure" data-pagefind-body>
-    <header class="article-header">
+  <article class="work measure" data-pagefind-body>
+    <header class="article-header work-header">
       <h1 class="article-title">{data.title}</h1>
       <p class="page-lead">{data.summary}</p>
       <div class="post-meta">
         <span>{data.period.from}{data.period.to ? ` – ${data.period.to}` : ' – 至今'}</span>
         {data.role && <span>{data.role}</span>}
         <span class="badge">{statusLabel}</span>
-        {data.links?.repo && <a href={data.links.repo} rel="noopener" target="_blank">仓库</a>}
-        {data.links?.demo && <a href={data.links.demo}>演示</a>}
-        {data.links?.post && <a href={data.links.post}>相关文章</a>}
       </div>
       <ul class="chips" aria-label="技术栈" style="margin-top: var(--space-3)">
         {data.stack.map((s) => <li class="chip">{s}</li>)}
       </ul>
-      <figure class="article-cover">
-        <img src={assetUrl(data.cover)} alt={data.title} loading="eager" decoding="async" onerror="this.parentElement.remove()" />
-      </figure>
+      <p class="work-links">
+        {data.links?.repo && <a href={data.links.repo} rel="noopener" target="_blank">源码仓库 ↗</a>}
+        {data.links?.demo && <a href={data.links.demo}>在线演示 ↗</a>}
+        {data.links?.post && <a href={data.links.post}>相关文章 →</a>}
+      </p>
     </header>
+
+    {data.demo?.kind === 'island' && <Demo name={data.demo.name} caption="可交互演示，滚动到此处时加载。" />}
+    {data.demo?.kind === 'iframe' && <UnityEmbed src={data.demo.src} aspect={data.demo.aspect} caption="Unity WebGL 构建，点击后开始下载。" />}
+    {!data.demo && (
+      <figure class="article-cover">
+        <img src={assetUrl(data.cover)} alt={data.title} loading="eager" decoding="async" />
+      </figure>
+    )}
+
     <div class="prose">
       <Content />
     </div>
+
+    {data.gallery && <Gallery items={data.gallery} />}
   </article>
   <ArticleScripts />
 </Base>

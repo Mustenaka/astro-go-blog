@@ -1,0 +1,27 @@
+---
+/**
+ * <UnityEmbed src="/assets/demos/<name>/<version>/index.html" aspect="16/9" sizeHint="25 MB" />
+ * The asset server must send COOP/COEP for demos/ and Content-Encoding: br for .br files
+ * (the Go local adapter does; Nginx/COS rules live in deploy/).
+ */
+import UnityFrame from './UnityFrame.vue';
+import { assetUrl } from '@lib/assets';
+
+interface Props {
+  src: string;
+  aspect?: string;
+  sizeHint?: string;
+  title?: string;
+  caption?: string;
+}
+
+const { src, aspect = '16/9', sizeHint, title, caption } = Astro.props;
+if (!src.startsWith('/assets/demos/') && !/^https?:\/\//.test(src)) {
+  throw new Error(`<UnityEmbed src="${src}" />: src must be /assets/demos/<name>/<version>/index.html`);
+}
+---
+
+<figure class="demo-figure">
+  <UnityFrame client:visible src={assetUrl(src)} aspect={aspect} sizeHint={sizeHint} title={title} />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
