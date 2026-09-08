@@ -1,5 +1,6 @@
 import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { friendSchema, pageSchema, postSchema, workSchema } from './content/schemas';
 
 // Content lives at the repository root, outside site/. Paths are relative to site/.
@@ -25,7 +26,13 @@ const pages = defineCollection({
 });
 
 const friends = defineCollection({
-  loader: file(`${CONTENT}/data/friends.yaml`),
+  // friends.yaml keeps its entries under a top-level `friends` key (Keystatic singleton); parse the
+  // YAML through the front matter parser (no extra dependency) and hand Astro the array.
+  loader: file(`${CONTENT}/data/friends.yaml`, {
+    parser: (text) => (parseFrontmatter(`---
+${text}
+---`).frontmatter.friends ?? []) as Record<string, unknown>[],
+  }),
   schema: friendSchema,
 });
 

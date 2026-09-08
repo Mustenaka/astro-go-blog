@@ -1,0 +1,15 @@
+---
+/**
+ * <Counter start={10} /> — the sample Vue island, wrapped so MDX (and Keystatic) can use it
+ * without the `client:*` directive. The directive lives here.
+ */
+import CounterIsland from './Counter.vue';
+
+interface Props {
+  start?: number | string;
+}
+
+const { start = 0 } = Astro.props;
+---
+
+<CounterIsland client:visible start={Number(start)} />

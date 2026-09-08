@@ -6,9 +6,6 @@ tags: [three.js, demo, 视频]
 categories: [站点建设]
 ---
 
-import Demo from '@components/Demo.astro';
-import Video from '@components/Video.astro';
-
 文章和作品页共用同一套 demo 组件。下面这个粒子演示是 three.js 岛屿，滚动到这里时才加载 three.js（约 150 KB gzip），滚出视口时暂停渲染，离开页面时释放几何体、材质与渲染器。
 
 <Demo name="particles" caption="拖动滑块改粒子数与重力。" />
@@ -16,8 +13,6 @@ import Video from '@components/Video.astro';
 写法：
 
 ```mdx
-import Demo from '@components/Demo.astro';
-
 <Demo name="particles" caption="说明文字" />
 ```
 
@@ -35,8 +30,6 @@ import Demo from '@components/Demo.astro';
 />
 
 ```mdx
-import Video from '@components/Video.astro';
-
 <Video src="/assets/video/.../clip.mp4" webm="/assets/video/.../clip.webm" poster="/assets/img/.../poster.webp" caption="说明" />
 ```
 

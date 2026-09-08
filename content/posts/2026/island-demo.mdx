@@ -6,18 +6,14 @@ tags: [vue, islands]
 categories: [站点建设]
 ---
 
-import Counter from '@components/Counter.vue';
-
 下面是一个最简单的 Vue 岛屿。页面本身仍然是静态 HTML，只有这个计数器会加载 JavaScript。
 
-<Counter client:visible start={10} />
+<Counter start={10} />
 
 写法：
 
 ```mdx
-import Counter from '@components/Counter.vue';
-
-<Counter client:visible start={10} />
+<Counter start={10} />
 ```
 
-`@components/` 指向 `site/src/components/`，在 `site/tsconfig.json` 里配置。
+`Demo`、`Video`、`UnityEmbed`、`Counter` 这几个组件不需要 import，构建时由 `remark-auto-import` 自动引入（映射表在 `site/src/plugins/remark-auto-import.ts`）。

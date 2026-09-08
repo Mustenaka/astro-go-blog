@@ -205,7 +205,7 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 3. 正文用 Markdown/MDX。标题从 `##` 开始，`toc: true`（默认）时 `##` 与 `###` 进目录。
 4. 图片先上传拿到 `/assets/img/YYYY/MM/<name>.webp`，再用 `![说明](/assets/...)` 引用；alt 文本就是说明。附件写 `[名字](/assets/files/...)`。
 5. 有公式就设 `math: true`（行内 `$...$`，块 `$$...$$`）。代码块写语言标识，会自动带语言标签与复制按钮。
-6. 需要 Vue 岛屿时在正文顶部 `import X from '@components/X.vue'`，用 `<X client:visible />`。
+6. 正文里可以直接用 `<Demo name="…" />`、`<Video src="…" />`、`<UnityEmbed src="…" />`、`<Counter start={10} />`，不用写 import（`site/src/plugins/remark-auto-import.ts` 在构建时注入）。要加新组件，在那个映射表里加一行，并在 `site/keystatic.config.ts` 的 `mdxComponents` 里声明。
 7. 从 WordPress 迁来的文章填 `legacyUrls`（旧路径，形如 `/index.php/YYYY/MM/DD/slug/`），构建会写进 `dist/redirects.map`。
 8. 同系列文章填相同的 `series`，文章页会列出整个系列。
 9. 未完成的文章设 `draft: true`：dev 可见，生产构建排除。
@@ -255,6 +255,18 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 | 后台 http://localhost:8080/admin/ | 人手上传媒体、看构建日志与统计 |
 
 三者写出的文件格式一致，front matter 都由 `content/schema/*.schema.json`（从 `site/src/content/schemas.ts` 导出）校验。改 schema 只改 `schemas.ts`，再跑 `pnpm -C site schema`。详细对应关系与排错见 `docs/ai-operations.md`。
+
+### Keystatic 可视化编辑（仅开发模式）
+
+`pnpm -C site dev` 后打开 http://localhost:4321/keystatic 。配置在 `site/keystatic.config.ts`，存储是 local，根目录是仓库（不是 `site/`）。生产构建不含它。
+
+| 用 Keystatic | 用 MCP 或直接写文件 |
+|---|---|
+| 改文章、页面的标题、摘要、日期、标签、分类、草稿、封面路径、正文 | 作品的 `links`、`gallery`、`demo`（在 Keystatic 里是只读的 ignored 字段） |
+| 新建文章：slug 要写成 `2026/my-post`（含年份目录） | 批量修改、迁移、任何需要精确控制 front matter 写法的场合 |
+| 友链 | 上传资产（Keystatic 只填 `/assets/` 路径，不上传） |
+
+Keystatic 保存会规范化 front matter（字段顺序、把可选布尔与默认值写全、数组用块样式）；已知差异记录在 `docs/decisions/0002-keystatic-roundtrip.md`。
 
 ### 写文章的检查清单
 

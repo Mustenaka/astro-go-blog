@@ -10,6 +10,8 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { rehypeAssetBase } from './src/plugins/rehype-asset-base';
 import { rehypeContentEnhance } from './src/plugins/rehype-content-enhance';
+import { remarkAutoImport } from './src/plugins/remark-auto-import';
+import { keystaticDev } from './integrations/keystatic-dev';
 
 const siteDir = fileURLToPath(new URL('.', import.meta.url));
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -24,10 +26,11 @@ const devAssetOrigin = 'http://localhost:8080';
 export default defineConfig({
   site: siteUrl,
   trailingSlash: 'always',
-  integrations: [vue(), mdx(), sitemap()],
+  // keystaticDev() is a no-op except for `astro dev` (or KEYSTATIC=1); see integrations/keystatic-dev.ts.
+  integrations: [vue(), mdx(), sitemap(), keystaticDev()],
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [remarkMath, remarkAutoImport],
       rehypePlugins: [
         rehypeKatex,
         [rehypeAssetBase, { base: assetBase }],

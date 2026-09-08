@@ -59,6 +59,16 @@ Astro 7 的 `astro dev` 会转成守护进程；关闭用：
 pnpm -C site exec astro dev stop
 ```
 
+## 2b. Keystatic 可视化编辑（只在 dev）
+
+`pnpm -C site dev` 启动后打开 http://localhost:4321/keystatic 。不需要额外进程：集成在 `astro dev` 时自动注入 `/keystatic` 与 `/api/keystatic`（并临时把 `trailingSlash` 放宽为 `ignore`），`pnpm -C site build` 完全不包含它。要在非 dev 命令下强制启用：`KEYSTATIC=1`；要在 dev 下关闭：`KEYSTATIC=0`。
+
+- 适合：改文章/页面的标题、摘要、日期、标签、分类、草稿、封面路径、正文；作品的标量字段；友链；新建草稿（slug 写成 `2026/my-post`）。
+- 不适合（用 MCP 或直接写文件）：含 `![]()` 图片的文章（保存会把图片转义成文本）、`math: true` 的文章（打不开）、作品的 `links`/`gallery`/`demo`。
+- 不要用编辑器里的图片按钮，上传一律走后台或 MCP。
+
+差异记录在 `docs/decisions/0002-keystatic-roundtrip.md`。
+
 ## 3. 上传一张图并在文章里引用
 
 1. 打开 http://localhost:8080/admin/ ，登录，进入"媒体库"。

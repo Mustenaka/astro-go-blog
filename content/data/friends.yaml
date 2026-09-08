@@ -1,9 +1,11 @@
-# Each entry needs a unique `id`. Fields: id, name, url, description (optional), avatar (optional).
-- id: astro
-  name: Astro
-  url: https://astro.build
-  description: 本站使用的静态站点框架。
-- id: unity-blog
-  name: Unity Blog
-  url: https://blog.unity.com
-  description: Unity 官方博客。
+# Friend links. Each entry needs a unique `id`. Fields: id, name, url, description (optional), avatar (optional).
+# The top-level `friends` key exists so the Keystatic singleton can edit this file; Astro reads the array inside.
+friends:
+  - id: astro
+    name: Astro
+    url: https://astro.build
+    description: 本站使用的静态站点框架。
+  - id: unity-blog
+    name: Unity Blog
+    url: https://blog.unity.com
+    description: Unity 官方博客。
