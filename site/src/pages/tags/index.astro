@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPosts, getTagIndex, tagUrl } from '@lib/content';
+
+const tags = getTagIndex(await getPosts());
+---
+
+<Base title="标签" description="按标签浏览全部文章。" path="/tags/">
+  <div class="measure">
+    <h1 class="page-title">标签</h1>
+    <p class="page-lead">共 {tags.length} 个标签。</p>
+    <ul class="chips">
+      {
+        tags.map((t) => (
+          <li>
+            <a class="chip" href={tagUrl(t.name)}>
+              {t.name} <span class="count">{t.count}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>

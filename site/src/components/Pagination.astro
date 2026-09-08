@@ -1,0 +1,22 @@
+---
+interface Props {
+  current: number;
+  total: number;
+  /** Returns the URL for page N (1-based). */
+  urlFor: (page: number) => string;
+}
+
+const { current, total, urlFor } = Astro.props;
+---
+
+{
+  total > 1 && (
+    <nav class="pagination" aria-label="分页">
+      {current > 1 ? <a href={urlFor(current - 1)} rel="prev">← 上一页</a> : <span class="disabled">← 上一页</span>}
+      <span class="muted">
+        第 {current} / {total} 页
+      </span>
+      {current < total ? <a href={urlFor(current + 1)} rel="next">下一页 →</a> : <span class="disabled">下一页 →</span>}
+    </nav>
+  )
+}

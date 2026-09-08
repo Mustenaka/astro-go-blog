@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="搜索" description="全站搜索。" path="/search/">
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  </Fragment>
+  <div class="measure search-page">
+    <h1 class="page-title">搜索</h1>
+    <div id="search"></div>
+    <p class="search-note" id="search-note" hidden>搜索索引在 <code>pnpm -C site build</code> 之后由 Pagefind 生成，开发服务器里没有索引。</p>
+  </div>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    (function () {
+      var note = document.getElementById('search-note');
+      if (!window.PagefindUI) {
+        note.hidden = false;
+        return;
+      }
+      var ui = new window.PagefindUI({
+        element: '#search',
+        showSubResults: true,
+        showImages: false,
+        resetStyles: false,
+        translations: {
+          placeholder: '搜索文章……',
+          clear_search: '清除',
+          load_more: '加载更多',
+          search_label: '搜索本站',
+          filters_label: '筛选',
+          zero_results: '没有找到「[SEARCH_TERM]」的结果',
+          many_results: '找到 [COUNT] 条「[SEARCH_TERM]」的结果',
+          one_result: '找到 [COUNT] 条「[SEARCH_TERM]」的结果',
+          alt_search: '没有找到「[SEARCH_TERM]」，改为显示「[DIFFERENT_TERM]」的结果',
+          search_suggestion: '没有找到「[SEARCH_TERM]」，试试：',
+          searching: '正在搜索「[SEARCH_TERM]」……',
+        },
+      });
+      var q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+    })();
+  </script>
+</Base>

@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, getTagIndex, tagUrl } from '@lib/content';
+
+export async function getStaticPaths() {
+  const tags = getTagIndex(await getPosts());
+  return tags.map((t) => ({ params: { tag: t.name }, props: { tag: t.name, posts: t.posts } }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<Base title={`标签：${tag}`} description={`标签「${tag}」下的 ${posts.length} 篇文章。`} path={tagUrl(tag)}>
+  <div class="measure">
+    <h1 class="page-title">标签：{tag}</h1>
+    <p class="page-lead">{posts.length} 篇文章 · <a href="/tags/">全部标签</a></p>
+    <PostList posts={posts} />
+  </div>
+</Base>

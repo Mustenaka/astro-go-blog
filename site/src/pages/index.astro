@@ -1,41 +1,41 @@
 ---
 import Base from '../layouts/Base.astro';
-import { formatDate, getPosts, getWorks } from '@lib/content';
+import PostList from '../components/PostList.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { getPosts, getWorks } from '@lib/content';
+import { personJsonLd, websiteJsonLd } from '@lib/seo';
+import { site } from '../site.config';
 
-const posts = await getPosts();
-const works = await getWorks();
+const posts = (await getPosts()).slice(0, site.homeLatestPosts);
+const featured = (await getWorks()).filter((w) => w.data.featured).slice(0, site.homeFeaturedWorks);
 ---
 
-<Base title="木十 / Mustenaka" description="Unity、实时物理仿真与 AI 应用的技术笔记与作品。">
-  <h1>木十 / Mustenaka</h1>
-  <p>软件工程师，方向是 Unity/C#、实时物理仿真、AI 应用。</p>
+<Base title={`${site.name} · ${site.englishName}`} rawTitle description={site.description} path="/" jsonLd={[websiteJsonLd(), personJsonLd()]}>
+  <section class="measure">
+    <h1 class="page-title">{site.author.name} <span class="muted">/ {site.author.alias}</span></h1>
+    <p class="page-lead">
+      {site.author.bio}这里记录 Unity、实时物理仿真与 AI 应用方向的技术笔记和作品。
+      <a href="/about/">关于我</a> · <a href={site.author.url} rel="noopener" target="_blank">GitHub</a> · <a href="/rss.xml">RSS</a>
+    </p>
+  </section>
 
-  <h2>文章</h2>
-  <ul>
-    {
-      posts.map((post) => (
-        <li>
-          <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-          <small> · {formatDate(post.data.date)}</small>
-          {post.data.draft && <small> · 草稿</small>}
-          <br />
-          <span>{post.data.description}</span>
-        </li>
-      ))
-    }
-  </ul>
+  {
+    featured.length > 0 && (
+      <section aria-labelledby="featured-title">
+        <h2 class="section-title" id="featured-title">
+          精选作品 <a href="/works/">全部作品 →</a>
+        </h2>
+        <div class="card-grid">
+          {featured.map((work) => (
+            <WorkCard work={work} />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
-  <h2>作品</h2>
-  <ul>
-    {
-      works.map((work) => (
-        <li>
-          <a href={`/works/${work.id}/`}>{work.data.title}</a>
-          <small> · {work.data.status}</small>
-          <br />
-          <span>{work.data.summary}</span>
-        </li>
-      ))
-    }
-  </ul>
+  <section aria-labelledby="latest-title" class="measure">
+    <h2 class="section-title" id="latest-title">最新文章 <a href="/posts/">全部文章 →</a></h2>
+    <PostList posts={posts} />
+  </section>
 </Base>

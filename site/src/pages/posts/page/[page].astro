@@ -1,0 +1,22 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PostsPage from '../../../components/PostsPage.astro';
+import { getPosts, paginate, postsPageUrl } from '@lib/content';
+import { site } from '../../../site.config';
+
+export async function getStaticPaths() {
+  const allPosts = await getPosts();
+  const pages = paginate(allPosts, site.postsPerPage);
+  // Page 1 lives at /posts/; only pages 2..N are generated here.
+  return pages.slice(1).map((pagePosts, i) => ({
+    params: { page: String(i + 2) },
+    props: { pagePosts, allPosts, current: i + 2, total: pages.length },
+  }));
+}
+
+const { pagePosts, allPosts, current, total } = Astro.props;
+---
+
+<Base title={`文章 · 第 ${current} 页`} description={`${site.name}的文章列表，第 ${current} 页。`} path={postsPageUrl(current)}>
+  <PostsPage pagePosts={pagePosts} allPosts={allPosts} current={current} total={total} />
+</Base>

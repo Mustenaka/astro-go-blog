@@ -1,0 +1,92 @@
+/*
+ * Design tokens. This is the only file to touch when changing the look of the site:
+ * colors, type scale, spacing, radii, shadows, widths.
+ *
+ * Colors use light-dark(): the first value is the light theme, the second the dark theme.
+ * Which one applies is decided by `color-scheme` on <html>:
+ *   - no data-theme attribute  -> follows the system (color-scheme: light dark)
+ *   - data-theme="light"/"dark" -> forced by the user's toggle (stored in localStorage)
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- Colors: one accent, everything else grey ---- */
+  --color-bg: light-dark(#ffffff, #0f1216);
+  --color-surface: light-dark(#f6f7f8, #171b21);
+  --color-surface-raised: light-dark(#ffffff, #1d222a);
+  --color-text: light-dark(#1f2328, #e6e8eb);
+  --color-text-muted: light-dark(#5c6670, #9aa4ae);
+  --color-text-faint: light-dark(#5f6a75, #8b95a1);
+  --color-border: light-dark(#e2e5e9, #2a313a);
+  --color-border-strong: light-dark(#c9cfd6, #3a424d);
+  --color-accent: light-dark(#0f766e, #5eead4);
+  --color-accent-hover: light-dark(#0d5f59, #99f6e4);
+  --color-accent-soft: light-dark(#e6f4f2, #12332f);
+  --color-accent-contrast: light-dark(#ffffff, #0f1216);
+  --color-code-bg: light-dark(#f6f8fa, #161b22);
+  --color-code-border: light-dark(#e2e5e9, #2a313a);
+  --color-inline-code-bg: light-dark(#eef1f4, #262c35);
+  --color-selection: light-dark(#cdeee9, #1d4f48);
+  --color-focus: light-dark(#0f766e, #5eead4);
+  --color-danger: light-dark(#b42318, #f97066);
+
+  /* ---- Typography ---- */
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", Consolas, "JetBrains Mono", "Noto Sans Mono CJK SC", monospace;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.4rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.125rem;
+
+  --leading-tight: 1.3;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.9;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* ---- Layout widths ---- */
+  /* Body text column: about 72 CJK characters at --text-base. */
+  --measure: 72em;
+  --page-max: 84rem;
+  --toc-width: 15rem;
+  --toc-gap: 3rem;
+  --header-height: 3.5rem;
+
+  /* ---- Spacing scale ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ---- Radii, shadows, motion ---- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px light-dark(rgb(0 0 0 / 0.06), rgb(0 0 0 / 0.4));
+  --shadow-md: 0 4px 16px light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.5));
+  --transition-fast: 120ms ease;
+
+  /* ---- Code blocks ---- */
+  --code-font-size: 0.875rem;
+  --code-line-height: 1.65;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}

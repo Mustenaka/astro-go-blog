@@ -24,3 +24,6 @@ api/cmd/mcp/mcp
 Thumbs.db
 .vscode/
 .idea/
+
+# KaTeX assets copied from node_modules by site/scripts/copy-katex.mjs
+site/public/katex/

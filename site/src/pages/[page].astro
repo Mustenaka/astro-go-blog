@@ -1,0 +1,45 @@
+---
+/** Fixed pages from the `pages` collection: /about/, /friends/, ... */
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ArticleScripts from '../components/ArticleScripts.astro';
+import { formatDate, getFriends, getPages } from '@lib/content';
+import { personJsonLd } from '@lib/seo';
+
+export async function getStaticPaths() {
+  const pages = await getPages();
+  return pages.map((page) => ({ params: { page: page.id }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+const friends = page.id === 'friends' ? await getFriends() : [];
+const path = `/${page.id}/`;
+---
+
+<Base title={page.data.title} description={page.data.description} path={path} jsonLd={page.id === 'about' ? [personJsonLd()] : []}>
+  <article class="measure" data-pagefind-body>
+    <header class="article-header">
+      <h1 class="article-title">{page.data.title}</h1>
+      {page.data.updated && <p class="post-meta">更新于 {formatDate(page.data.updated)}</p>}
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+    {
+      friends.length > 0 && (
+        <ul class="friend-list" style="margin-top: var(--space-6)">
+          {friends.map((f) => (
+            <li>
+              <a href={f.data.url} rel="noopener" target="_blank">
+                {f.data.name}
+              </a>
+              {f.data.description && <p>{f.data.description}</p>}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </article>
+  <ArticleScripts />
+</Base>

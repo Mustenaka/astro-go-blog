@@ -1,0 +1,87 @@
+---
+/**
+ * Tiny inline enhancements for article pages: copy buttons on code blocks, an image
+ * lightbox, and the active heading in the table of contents. Inline so that article
+ * pages ship no external JS bundle beyond islands and Pagefind.
+ */
+---
+
+<dialog class="lightbox" id="lightbox" aria-label="放大图片">
+  <img alt="" />
+</dialog>
+
+<script is:inline>
+  (function () {
+    /* Copy buttons */
+    document.querySelectorAll('pre.astro-code').forEach(function (pre) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'copy-button';
+      button.textContent = '复制';
+      button.setAttribute('aria-label', '复制代码');
+      button.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        var text = code ? code.innerText : pre.innerText;
+        navigator.clipboard.writeText(text).then(function () {
+          button.textContent = '已复制';
+          button.setAttribute('data-copied', '');
+          setTimeout(function () {
+            button.textContent = '复制';
+            button.removeAttribute('data-copied');
+          }, 1500);
+        });
+      });
+      pre.appendChild(button);
+    });
+
+    /* Lightbox */
+    var dialog = document.getElementById('lightbox');
+    if (dialog && typeof dialog.showModal === 'function') {
+      var img = dialog.querySelector('img');
+      document.querySelectorAll('.prose img[data-lightbox]').forEach(function (source) {
+        source.addEventListener('click', function () {
+          img.src = source.currentSrc || source.src;
+          img.alt = source.alt || '';
+          dialog.showModal();
+        });
+      });
+      dialog.addEventListener('click', function () {
+        dialog.close();
+      });
+      dialog.addEventListener('close', function () {
+        img.removeAttribute('src');
+      });
+    }
+
+    /* Active TOC entry */
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a[href^="#"]'));
+    if (links.length && 'IntersectionObserver' in window) {
+      var byId = {};
+      links.forEach(function (a) {
+        byId[decodeURIComponent(a.getAttribute('href').slice(1))] = a;
+      });
+      var headings = Object.keys(byId)
+        .map(function (id) {
+          return document.getElementById(id);
+        })
+        .filter(Boolean);
+      var setActive = function (id) {
+        links.forEach(function (a) {
+          a.removeAttribute('aria-current');
+        });
+        if (byId[id]) byId[id].setAttribute('aria-current', 'true');
+      };
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) setActive(entry.target.id);
+          });
+        },
+        { rootMargin: '-64px 0px -70% 0px', threshold: 0 },
+      );
+      headings.forEach(function (h) {
+        observer.observe(h);
+      });
+    }
+  })();
+</script>

@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import { categoryUrl, getCategoryIndex, getPosts } from '@lib/content';
+
+const categories = getCategoryIndex(await getPosts());
+---
+
+<Base title="分类" description="按分类浏览全部文章。" path="/categories/">
+  <div class="measure">
+    <h1 class="page-title">分类</h1>
+    <ul class="chips">
+      {
+        categories.map((c) => (
+          <li>
+            <a class="chip" href={categoryUrl(c.name)}>
+              {c.name} <span class="count">{c.count}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>

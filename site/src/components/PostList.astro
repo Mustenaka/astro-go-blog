@@ -1,0 +1,36 @@
+---
+import type { Post } from '@lib/content';
+import { formatDate, postUrl, tagUrl } from '@lib/content';
+
+interface Props {
+  posts: Post[];
+  showDraft?: boolean;
+}
+
+const { posts } = Astro.props;
+---
+
+<ul class="post-list">
+  {
+    posts.map((post) => (
+      <li>
+        <h3 class="post-title">
+          <a href={postUrl(post.id)}>{post.data.title}</a>
+        </h3>
+        <p class="post-desc">{post.data.description}</p>
+        <div class="post-meta">
+          <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+          {post.data.categories.map((c) => (
+            <span>{c}</span>
+          ))}
+          {post.data.tags.slice(0, 4).map((tag) => (
+            <a class="chip" href={tagUrl(tag)}>
+              {tag}
+            </a>
+          ))}
+          {post.data.draft && <span class="badge">草稿</span>}
+        </div>
+      </li>
+    ))
+  }
+</ul>

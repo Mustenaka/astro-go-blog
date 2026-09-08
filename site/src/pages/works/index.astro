@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getWorks } from '@lib/content';
+
+const works = await getWorks();
+---
+
+<Base title="作品" description="作品集：Unity 物理仿真、工具与实验项目。" path="/works/">
+  <h1 class="page-title">作品</h1>
+  <p class="page-lead">共 {works.length} 个作品。</p>
+  <div class="card-grid">
+    {works.map((work) => <WorkCard work={work} />)}
+  </div>
+</Base>

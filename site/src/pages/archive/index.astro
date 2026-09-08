@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import { formatDate, getPosts, groupByYear, postUrl } from '@lib/content';
+
+const posts = await getPosts();
+const years = groupByYear(posts);
+---
+
+<Base title="归档" description={`按年份归档的全部 ${posts.length} 篇文章。`} path="/archive/">
+  <div class="measure">
+    <h1 class="page-title">归档</h1>
+    <p class="page-lead">共 {posts.length} 篇文章。</p>
+    {
+      years.map(({ year, posts }) => (
+        <section aria-labelledby={`year-${year}`}>
+          <h2 class="archive-year" id={`year-${year}`}>
+            {year} <span class="muted small">{posts.length} 篇</span>
+          </h2>
+          <ul class="archive-list">
+            {posts.map((post) => (
+              <li>
+                <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date).slice(5)}</time>
+                <a href={postUrl(post.id)}>{post.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>

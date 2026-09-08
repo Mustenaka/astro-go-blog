@@ -1,8 +1,10 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { getWorks } from '@lib/content';
+import ArticleScripts from '../../components/ArticleScripts.astro';
+import { getWorks, workUrl } from '@lib/content';
 import { assetUrl } from '@lib/assets';
+import { softwareSourceCodeJsonLd } from '@lib/seo';
 
 export async function getStaticPaths() {
   const works = await getWorks();
@@ -12,25 +14,32 @@ export async function getStaticPaths() {
 const { work } = Astro.props;
 const { Content } = await render(work);
 const { data } = work;
+const statusLabel = { active: '进行中', wip: '开发中', archived: '已归档' }[data.status];
 ---
 
-<Base title={data.title} description={data.summary}>
-  <article>
-    <h1>{data.title}</h1>
-    <p>{data.summary}</p>
-    <img src={assetUrl(data.cover)} alt={data.title} />
-    <dl>
-      <dt>时间</dt>
-      <dd>{data.period.from}{data.period.to ? ` – ${data.period.to}` : ' – 至今'}</dd>
-      {data.role && <dt>角色</dt>}
-      {data.role && <dd>{data.role}</dd>}
-      <dt>技术栈</dt>
-      <dd>{data.stack.join(', ')}</dd>
-      <dt>状态</dt>
-      <dd>{data.status}</dd>
-      {data.links?.repo && <dt>仓库</dt>}
-      {data.links?.repo && <dd><a href={data.links.repo}>{data.links.repo}</a></dd>}
-    </dl>
-    <Content />
+<Base title={data.title} description={data.summary} path={workUrl(work.id)} image={assetUrl(data.cover)} jsonLd={[softwareSourceCodeJsonLd(work)]}>
+  <article class="measure" data-pagefind-body>
+    <header class="article-header">
+      <h1 class="article-title">{data.title}</h1>
+      <p class="page-lead">{data.summary}</p>
+      <div class="post-meta">
+        <span>{data.period.from}{data.period.to ? ` – ${data.period.to}` : ' – 至今'}</span>
+        {data.role && <span>{data.role}</span>}
+        <span class="badge">{statusLabel}</span>
+        {data.links?.repo && <a href={data.links.repo} rel="noopener" target="_blank">仓库</a>}
+        {data.links?.demo && <a href={data.links.demo}>演示</a>}
+        {data.links?.post && <a href={data.links.post}>相关文章</a>}
+      </div>
+      <ul class="chips" aria-label="技术栈" style="margin-top: var(--space-3)">
+        {data.stack.map((s) => <li class="chip">{s}</li>)}
+      </ul>
+      <figure class="article-cover">
+        <img src={assetUrl(data.cover)} alt={data.title} loading="eager" decoding="async" onerror="this.parentElement.remove()" />
+      </figure>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
   </article>
+  <ArticleScripts />
 </Base>

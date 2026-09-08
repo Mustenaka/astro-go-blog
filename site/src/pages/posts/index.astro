@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostsPage from '../../components/PostsPage.astro';
+import { getPosts, paginate } from '@lib/content';
+import { site } from '../../site.config';
+
+const allPosts = await getPosts();
+const pages = paginate(allPosts, site.postsPerPage);
+---
+
+<Base title="文章" description={`${site.name}的全部文章，共 ${allPosts.length} 篇。`} path="/posts/">
+  <PostsPage pagePosts={pages[0]!} allPosts={allPosts} current={1} total={pages.length} />
+</Base>

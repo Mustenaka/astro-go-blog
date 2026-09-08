@@ -1,0 +1,9 @@
+{
+  "_comment": "Fixed 301 mappings from the old WordPress site (AGENTS.md section 5.5). The value \"410\" means Gone. Per-post mappings come from each post's legacyUrls.",
+  "/index.php/blog/": "/posts/",
+  "/index.php/myprofile/": "/about/",
+  "/index.php/myopensource/": "/works/",
+  "/index.php/feed/": "/rss.xml",
+  "/feed/": "/rss.xml",
+  "/index.php/download/": "410"
+}

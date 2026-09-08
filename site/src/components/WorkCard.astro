@@ -1,0 +1,29 @@
+---
+/**
+ * Work card. Phase 2 placeholder styling; phase 5 replaces the cover handling with
+ * real images and the gallery/demo components.
+ */
+import type { Work } from '@lib/content';
+import { workUrl } from '@lib/content';
+import { assetUrl } from '@lib/assets';
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+const { data } = work;
+const statusLabel: Record<typeof data.status, string> = { active: '进行中', wip: '开发中', archived: '已归档' };
+---
+
+<a class="card" href={workUrl(work.id)}>
+  <div class="card-cover">
+    <img src={assetUrl(data.cover)} alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+  </div>
+  <h3 class="card-title">{data.title}</h3>
+  <p class="card-summary">{data.summary}</p>
+  <ul class="chips" aria-label="技术栈">
+    {data.stack.slice(0, 4).map((s) => <li class="chip">{s}</li>)}
+  </ul>
+  <span class="card-status">{statusLabel[data.status]}</span>
+</a>

@@ -1,0 +1,35 @@
+---
+/** Shared body of /posts/ and /posts/page/N/. */
+import type { Post } from '@lib/content';
+import { categoryUrl, getCategoryIndex, postsPageUrl } from '@lib/content';
+import PostList from './PostList.astro';
+import Pagination from './Pagination.astro';
+
+interface Props {
+  pagePosts: Post[];
+  allPosts: Post[];
+  current: number;
+  total: number;
+}
+
+const { pagePosts, allPosts, current, total } = Astro.props;
+const categories = getCategoryIndex(allPosts);
+---
+
+<div class="measure">
+  <h1 class="page-title">文章</h1>
+  <p class="page-lead">共 {allPosts.length} 篇。按 <a href="/tags/">标签</a> 或 <a href="/archive/">年份</a> 浏览。</p>
+  <ul class="chips" aria-label="分类" style="margin-bottom: var(--space-6)">
+    {
+      categories.map((c) => (
+        <li>
+          <a class="chip" href={categoryUrl(c.name)}>
+            {c.name} <span class="count">{c.count}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <PostList posts={pagePosts} />
+  <Pagination current={current} total={total} urlFor={postsPageUrl} />
+</div>

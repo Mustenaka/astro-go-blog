@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { categoryUrl, getCategoryIndex, getPosts } from '@lib/content';
+
+export async function getStaticPaths() {
+  const categories = getCategoryIndex(await getPosts());
+  return categories.map((c) => ({ params: { category: c.name }, props: { category: c.name, posts: c.posts } }));
+}
+
+const { category, posts } = Astro.props;
+---
+
+<Base title={`分类：${category}`} description={`分类「${category}」下的 ${posts.length} 篇文章。`} path={categoryUrl(category)}>
+  <div class="measure">
+    <h1 class="page-title">分类：{category}</h1>
+    <p class="page-lead">{posts.length} 篇文章 · <a href="/categories/">全部分类</a></p>
+    <PostList posts={posts} />
+  </div>
+</Base>

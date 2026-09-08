@@ -9,6 +9,7 @@ import tailwindcss from '@tailwindcss/vite';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { rehypeAssetBase } from './src/plugins/rehype-asset-base';
+import { rehypeContentEnhance } from './src/plugins/rehype-content-enhance';
 
 const siteDir = fileURLToPath(new URL('.', import.meta.url));
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -27,7 +28,11 @@ export default defineConfig({
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex, [rehypeAssetBase, { base: assetBase }]],
+      rehypePlugins: [
+        rehypeKatex,
+        [rehypeAssetBase, { base: assetBase }],
+        [rehypeContentEnhance, { siteUrl }],
+      ],
     }),
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },

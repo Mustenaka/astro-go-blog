@@ -1,8 +1,14 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { formatDate, getPosts } from '@lib/content';
+import Toc from '../../components/Toc.astro';
+import ArticleScripts from '../../components/ArticleScripts.astro';
+import Comments from '../../components/Comments.vue';
+import { categoryUrl, formatDate, getAdjacent, getPosts, getSeriesPosts, postUrl, tagUrl } from '@lib/content';
 import { assetUrl } from '@lib/assets';
+import { estimateReadingTime } from '@lib/reading-time';
+import { blogPostingJsonLd } from '@lib/seo';
+import { site, siteUrl } from '../../site.config';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -10,19 +16,117 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { data } = post;
+const { Content, headings } = await render(post);
+const allPosts = await getPosts();
+const { prev, next } = getAdjacent(allPosts, post.id);
+const series = data.series ? getSeriesPosts(allPosts, data.series) : [];
+const reading = estimateReadingTime(post.body);
+const showToc = data.toc && headings.some((h) => h.depth >= 2 && h.depth <= 3);
+const artalkServer = (import.meta.env.PUBLIC_ARTALK_SERVER ?? '').trim();
+const path = postUrl(post.id);
 ---
 
-<Base title={post.data.title} description={post.data.description} lang={post.data.lang} math={post.data.math}>
-  <article>
-    <h1>{post.data.title}</h1>
-    <p>
-      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-      {post.data.updated && <span> · 更新于 {formatDate(post.data.updated)}</span>}
-      {post.data.categories.length > 0 && <span> · {post.data.categories.join(' / ')}</span>}
-    </p>
-    {post.data.tags.length > 0 && <p>标签：{post.data.tags.join(', ')}</p>}
-    {post.data.cover && <img src={assetUrl(post.data.cover)} alt="" />}
-    <Content />
-  </article>
+<Base
+  title={data.title}
+  description={data.description}
+  lang={data.lang}
+  math={data.math}
+  path={path}
+  type="article"
+  image={data.cover ? assetUrl(data.cover) : undefined}
+  article={{ publishedTime: data.date, modifiedTime: data.updated, tags: data.tags, section: data.categories[0] }}
+  jsonLd={[blogPostingJsonLd(post)]}
+>
+  <div class:list={['article-layout', { 'has-toc': showToc }]}>
+    <article data-pagefind-body>
+      <header class="article-header">
+        <h1 class="article-title">{data.title}</h1>
+        <div class="post-meta">
+          <time datetime={data.date.toISOString()} data-pagefind-meta="date">{formatDate(data.date)}</time>
+          {data.updated && <span>更新于 {formatDate(data.updated)}</span>}
+          <span>约 {reading.minutes} 分钟</span>
+          {data.categories.map((c) => <a href={categoryUrl(c)}>{c}</a>)}
+          {data.draft && <span class="badge">草稿</span>}
+        </div>
+        {
+          data.tags.length > 0 && (
+            <ul class="chips" aria-label="标签" style="margin-top: var(--space-3)">
+              {data.tags.map((tag) => (
+                <li>
+                  <a class="chip" href={tagUrl(tag)}>
+                    {tag}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        {
+          data.cover && (
+            <figure class="article-cover">
+              <img src={assetUrl(data.cover)} alt="" loading="eager" decoding="async" />
+            </figure>
+          )
+        }
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <footer class="article-footer" data-pagefind-ignore>
+        {
+          series.length > 1 && (
+            <aside class="series-box" aria-label="系列文章">
+              <strong>系列：{data.series}</strong>
+              <ol>
+                {series.map((p) => (
+                  <li aria-current={p.id === post.id ? 'true' : undefined}>
+                    {p.id === post.id ? p.data.title : <a href={postUrl(p.id)}>{p.data.title}</a>}
+                  </li>
+                ))}
+              </ol>
+            </aside>
+          )
+        }
+        <nav class="adjacent" aria-label="相邻文章">
+          {
+            prev ? (
+              <a href={postUrl(prev.id)} rel="prev">
+                <span class="label">上一篇</span>
+                {prev.data.title}
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            next && (
+              <a href={postUrl(next.id)} rel="next" class="next">
+                <span class="label">下一篇</span>
+                {next.data.title}
+              </a>
+            )
+          }
+        </nav>
+        <p class="small muted">
+          本文的 Markdown 原文：<a href={`/posts/${post.id}.md`}>{post.id}.md</a>
+        </p>
+        {artalkServer && <Comments client:visible server={artalkServer} site={site.name} pageKey={siteUrl + path} pageTitle={data.title} />}
+      </footer>
+    </article>
+
+    {
+      showToc && (
+        <aside class="toc-wrapper" data-pagefind-ignore>
+          <details open>
+            <summary>目录</summary>
+            <Toc headings={headings} />
+          </details>
+        </aside>
+      )
+    }
+  </div>
+  <ArticleScripts />
 </Base>

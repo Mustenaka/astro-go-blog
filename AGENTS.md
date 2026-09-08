@@ -198,13 +198,36 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 
 内容集合的定义在 `site/src/content.config.ts`。它从 `../content/` 读取，front matter 用 zod `strictObject` 校验：字段类型错误或出现未定义字段，`build` 与 `dev` 都会失败并指出文件与字段。
 
-### 新增文章
+### 新增一篇文章的完整步骤
 
-1. 在 `content/posts/<发布年份>/` 新建 `<slug>.mdx`，slug 只用小写字母、数字和连字符，全站唯一。
-2. front matter 按第 5.1 节填写。`title`、`description`、`date`、`tags`、`categories` 必填。
-3. 图片、附件一律写 `/assets/<key>`，key 规则见第 5.4 节。
-4. 需要公式时设 `math: true`。需要 Vue 岛屿时在正文里 `import X from '@components/X.vue'`，用 `<X client:visible />`。
-5. 写完跑 `pnpm -C site build` 确认通过。
+1. 定 slug：小写字母、数字、连字符，全站唯一（不同年份也不能重名）。文件放在 `content/posts/<发布年份>/<slug>.mdx`。
+2. 写 front matter，按第 5.1 节。必填 `title`、`description`（一两句，会出现在列表、OG、RSS、llms.txt）、`date`、`tags`（尽量复用 `/tags/` 里已有的）、`categories`（一到两个）。
+3. 正文用 Markdown/MDX。标题从 `##` 开始，`toc: true`（默认）时 `##` 与 `###` 进目录。
+4. 图片先上传拿到 `/assets/img/YYYY/MM/<name>.webp`，再用 `![说明](/assets/...)` 引用；alt 文本就是说明。附件写 `[名字](/assets/files/...)`。
+5. 有公式就设 `math: true`（行内 `$...$`，块 `$$...$$`）。代码块写语言标识，会自动带语言标签与复制按钮。
+6. 需要 Vue 岛屿时在正文顶部 `import X from '@components/X.vue'`，用 `<X client:visible />`。
+7. 从 WordPress 迁来的文章填 `legacyUrls`（旧路径，形如 `/index.php/YYYY/MM/DD/slug/`），构建会写进 `dist/redirects.map`。
+8. 同系列文章填相同的 `series`，文章页会列出整个系列。
+9. 未完成的文章设 `draft: true`：dev 可见，生产构建排除。
+10. 跑 `pnpm -C site check` 与 `pnpm -C site build`；字段错误会直接失败并指出文件与字段。
+11. 提交 `content/` 下的改动。
+
+### 新增一个页面的步骤
+
+固定页面来自 `content/pages/<slug>.mdx`，由 `site/src/pages/[page].astro` 渲染到 `/<slug>/`。
+
+1. 在 `content/pages/` 新建 `<slug>.mdx`，front matter 只有 `title`（必填）、`description`、`updated`（第 5.3 节）。
+2. 正文写 Markdown/MDX，规则同文章。
+3. 需要出现在顶部导航时，在 `site/src/site.config.ts` 的 `nav` 里加一项。
+4. 需要特殊数据（如友链读 `friends.yaml`）时，在 `[page].astro` 里按 `page.id` 分支处理，不要新建独立路由。
+5. 跑 `pnpm -C site build` 确认 `dist/<slug>/index.html` 生成。
+
+### 站点常量与样式
+
+- 站名、作者、导航、每页篇数、备案号、引言都在 `site/src/site.config.ts`。
+- 颜色、字号、间距、圆角等设计变量全部在 `site/src/styles/tokens.css`；改风格只动这个文件。
+- `robots.txt` 策略在 `site/src/robots.config.ts`。
+- 旧站固定 301 映射在 `site/src/legacy-redirects.json`，构建后与文章的 `legacyUrls` 一起写进 `site/dist/redirects.map`。
 
 ### 新增作品
 

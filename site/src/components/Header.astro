@@ -1,0 +1,47 @@
+---
+import { site } from '../site.config';
+import ThemeToggle from './ThemeToggle.astro';
+
+const current = Astro.url.pathname;
+const isCurrent = (href: string) => (href === '/' ? current === '/' : current.startsWith(href));
+---
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="brand" href="/">
+      <span>{site.name}</span>
+      <small>{site.englishName}</small>
+    </a>
+    <div class="header-actions">
+      <nav class="site-nav" id="site-nav" aria-label="站点导航">
+        <ul>
+          {
+            site.nav.map((item) => (
+              <li>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <ThemeToggle />
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" id="nav-toggle">菜单</button>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  (function () {
+    var header = document.getElementById('site-header');
+    var button = document.getElementById('nav-toggle');
+    if (!header || !button) return;
+    button.addEventListener('click', function () {
+      var open = header.hasAttribute('data-nav-open');
+      if (open) header.removeAttribute('data-nav-open');
+      else header.setAttribute('data-nav-open', '');
+      button.setAttribute('aria-expanded', String(!open));
+    });
+  })();
+</script>

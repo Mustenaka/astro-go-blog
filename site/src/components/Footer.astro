@@ -1,0 +1,16 @@
+---
+import { site } from '../site.config';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="quote">“{site.quote.text}” — {site.quote.source}</p>
+    <div class="footer-links">
+      <span>© {year} {site.author.name} / {site.author.alias}</span>
+      {site.social.map((s) => <a href={s.url}>{s.label}</a>)}
+      <a href="/llms.txt">llms.txt</a>
+      <a href={site.icp.url} rel="noopener" target="_blank">{site.icp.number}</a>
+    </div>
+  </div>
+</footer>
