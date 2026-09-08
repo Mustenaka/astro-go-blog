@@ -4,6 +4,7 @@ import Base from '../../layouts/Base.astro';
 import Toc from '../../components/Toc.astro';
 import ArticleScripts from '../../components/ArticleScripts.astro';
 import Comments from '../../components/Comments.vue';
+import Counters from '../../components/Counters.vue';
 import { categoryUrl, formatDate, getAdjacent, getPosts, getSeriesPosts, postUrl, tagUrl } from '@lib/content';
 import { assetUrl } from '@lib/assets';
 import { estimateReadingTime } from '@lib/reading-time';
@@ -24,6 +25,8 @@ const series = data.series ? getSeriesPosts(allPosts, data.series) : [];
 const reading = estimateReadingTime(post.body);
 const showToc = data.toc && headings.some((h) => h.depth >= 2 && h.depth <= 3);
 const artalkServer = (import.meta.env.PUBLIC_ARTALK_SERVER ?? '').trim();
+// Empty string means same origin (production behind Nginx); dev points at the Go server.
+const apiBase = (import.meta.env.PUBLIC_API_BASE ?? '').trim();
 const path = postUrl(post.id);
 ---
 
@@ -76,6 +79,7 @@ const path = postUrl(post.id);
       </div>
 
       <footer class="article-footer" data-pagefind-ignore>
+        <Counters client:visible slug={post.id} apiBase={apiBase} />
         {
           series.length > 1 && (
             <aside class="series-box" aria-label="系列文章">

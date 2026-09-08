@@ -9,6 +9,10 @@
     "dev": "pnpm -C site dev",
     "build": "pnpm -C site build",
     "check": "pnpm -C site check",
-    "preview": "pnpm -C site preview"
+    "preview": "pnpm -C site preview",
+    "build:admin": "pnpm -C admin build",
+    "check:admin": "pnpm -C admin check",
+    "api": "cd api && go run ./cmd/server",
+    "api:test": "cd api && go vet ./... && go test ./..."
   }
 }

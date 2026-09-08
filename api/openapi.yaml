@@ -1,0 +1,389 @@
+openapi: 3.1.0
+info:
+  title: astro-go-blog API
+  version: 0.1.0
+  description: |
+    Backend for the static blog. Public endpoints live under `/api/v1/` and are the only
+    routes Nginx forwards from the internet. `/admin/`, `/hooks/` and the local storage
+    endpoints are reachable only on the loopback interface (SSH tunnel in production).
+servers:
+  - url: http://localhost:8080
+    description: Local development (Go process; `/assets/` and `/_local/` exist only with STORAGE_KIND=local)
+tags:
+  - name: public
+  - name: admin
+  - name: hooks
+  - name: local-storage
+
+paths:
+  /healthz:
+    get:
+      tags: [public]
+      summary: Liveness probe
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean }, time: { type: string } } }
+
+  /api/v1/counters:
+    get:
+      tags: [public]
+      summary: Batch read view and like counts
+      parameters:
+        - in: query
+          name: slugs
+          required: true
+          schema: { type: string }
+          description: Comma-separated slugs (max 50). Invalid slugs are dropped silently.
+      responses:
+        '200':
+          description: Counters (missing slugs return zeros)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  counters:
+                    type: array
+                    items: { $ref: '#/components/schemas/Counter' }
+
+  /api/v1/counters/{slug}/view:
+    post:
+      tags: [public]
+      summary: Count a page view
+      description: One view per client (hashed IP) per slug per 10 minutes. Rate limited.
+      parameters: [{ $ref: '#/components/parameters/slug' }]
+      responses:
+        '200':
+          description: Current values; `counted` says whether this call incremented
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Counter' }
+                  - { type: object, properties: { counted: { type: boolean } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooMany' }
+
+  /api/v1/likes/{slug}:
+    post:
+      tags: [public]
+      summary: Like a page
+      description: One like per client (hashed IP) per slug per UTC day. Repeats return the current value with `liked=false` and are not an error.
+      parameters: [{ $ref: '#/components/parameters/slug' }]
+      responses:
+        '200':
+          description: Current values
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Counter' }
+                  - { type: object, properties: { liked: { type: boolean } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooMany' }
+
+  /admin/api/login:
+    post:
+      tags: [admin]
+      summary: Log in
+      description: Five failures for a username/IP pair lock it for 15 minutes. Sets the `admin_session` cookie (HttpOnly, Secure, SameSite=Strict, 12h).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties: { username: { type: string }, password: { type: string } }
+      responses:
+        '200': { description: Logged in, content: { application/json: { schema: { type: object, properties: { user: { type: string } } } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooMany' }
+
+  /admin/api/logout:
+    post:
+      tags: [admin]
+      summary: Log out
+      security: [{ session: [] }]
+      responses:
+        '200': { description: Session deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/me:
+    get:
+      tags: [admin]
+      summary: Current session and storage info
+      security: [{ session: [] }]
+      responses:
+        '200':
+          description: Session info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { type: string }
+                  storage: { type: string, enum: [local, cos] }
+                  assetBase: { type: string }
+                  prefixes: { type: array, items: { type: string } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/assets/presign:
+    post:
+      tags: [admin]
+      summary: Issue an upload target
+      description: |
+        Validates prefix, extension whitelist, MIME/extension consistency and size limits, then
+        generates the key server-side (`<prefix>/YYYY/MM/<slug>-<rand>.<ext>`, or
+        `demos/<demoName>/<demoVersion>/<relativePath>`). Clients never choose keys.
+      security: [{ session: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PresignRequest' }
+      responses:
+        '200':
+          description: Upload target
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PresignResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/assets/complete:
+    post:
+      tags: [admin]
+      summary: Record a finished upload
+      description: The server verifies the object exists with the reported size, then writes the `assets` row. `sha256` is computed by the client.
+      security: [{ session: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key, size, contentType, sha256]
+              properties:
+                key: { type: string }
+                originalName: { type: string }
+                size: { type: integer }
+                contentType: { type: string }
+                sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+      responses:
+        '201': { description: Asset recorded, content: { application/json: { schema: { $ref: '#/components/schemas/Asset' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/assets:
+    get:
+      tags: [admin]
+      summary: List assets
+      security: [{ session: [] }]
+      parameters:
+        - { in: query, name: prefix, schema: { type: string } }
+        - { in: query, name: q, schema: { type: string }, description: Substring of key or original name }
+        - { in: query, name: page, schema: { type: integer, minimum: 1, default: 1 } }
+      responses:
+        '200':
+          description: Page of assets (20 per page)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Asset' } }
+                  page: { type: integer }
+                  perPage: { type: integer }
+                  total: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/assets/{id}:
+    delete:
+      tags: [admin]
+      summary: Delete an asset (object and row)
+      security: [{ session: [] }]
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Deleted, content: { application/json: { schema: { type: object, properties: { deleted: { type: string } } } } } }
+        '404': { description: Unknown id }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/build:
+    post:
+      tags: [admin]
+      summary: Trigger a build
+      description: Runs RELEASE_SCRIPT asynchronously. One build runs at a time; a second is queued; a third is rejected with 409.
+      security: [{ session: [] }]
+      responses:
+        '202': { description: Job accepted, content: { application/json: { schema: { type: object, properties: { job: { $ref: '#/components/schemas/BuildJob' } } } } } }
+        '409': { description: A build is running and another is already queued }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    get:
+      tags: [admin]
+      summary: Last ten builds
+      security: [{ session: [] }]
+      responses:
+        '200': { description: Jobs, content: { application/json: { schema: { type: object, properties: { jobs: { type: array, items: { $ref: '#/components/schemas/BuildJob' } } } } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/build/{id}:
+    get:
+      tags: [admin]
+      summary: Build status and log tail (last 16 KiB)
+      security: [{ session: [] }]
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Job, content: { application/json: { schema: { type: object, properties: { job: { $ref: '#/components/schemas/BuildJob' }, log: { type: string } } } } } }
+        '404': { description: Unknown job }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/api/stats:
+    get:
+      tags: [admin]
+      summary: Top 20 by views and by likes
+      security: [{ session: [] }]
+      responses:
+        '200':
+          description: Stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  topViews: { type: array, items: { $ref: '#/components/schemas/Counter' } }
+                  topLikes: { type: array, items: { $ref: '#/components/schemas/Counter' } }
+                  totalViews: { type: integer }
+                  totalLikes: { type: integer }
+                  generatedAt: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /hooks/github:
+    post:
+      tags: [hooks]
+      summary: GitHub push webhook
+      description: Verifies `X-Hub-Signature-256` (HMAC-SHA256 of the raw body with GITHUB_WEBHOOK_SECRET). Only `push` events to MAIN_BRANCH trigger a build. Returns 404 when no secret is configured.
+      parameters:
+        - { in: header, name: X-Hub-Signature-256, required: true, schema: { type: string } }
+        - { in: header, name: X-GitHub-Event, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { ref: { type: string } } }
+      responses:
+        '202': { description: Build triggered }
+        '200': { description: Ping acknowledged, or push ignored (other branch/event, or builds busy) }
+        '401': { description: Invalid signature }
+
+  /_local/upload/{token}:
+    put:
+      tags: [local-storage]
+      summary: One-time upload target issued by presign (STORAGE_KIND=local only)
+      parameters:
+        - { in: path, name: token, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          '*/*': { schema: { type: string, format: binary } }
+      responses:
+        '200': { description: Stored }
+        '400': { description: Size or content type mismatch }
+        '403': { description: Unknown, used or expired token }
+
+  /assets/{key}:
+    get:
+      tags: [local-storage]
+      summary: Serve a stored object (STORAGE_KIND=local only; the CDN does this in production)
+      description: |
+        `.br` keys are served with `Content-Encoding: br` and the content type of the underlying file
+        (`.wasm.br` → `application/wasm`, `.js.br` → `text/javascript`). Keys under `demos/` also get
+        `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`.
+      parameters:
+        - { in: path, name: key, required: true, schema: { type: string } }
+      responses:
+        '200': { description: The object }
+        '404': { description: Unknown key }
+
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: admin_session
+  parameters:
+    slug:
+      in: path
+      name: slug
+      required: true
+      schema: { type: string, pattern: '^[a-z0-9][a-z0-9-]{0,99}$' }
+  responses:
+    BadRequest:
+      description: Validation error
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unauthorized:
+      description: Login required or invalid credentials
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    TooMany:
+      description: Rate limited or locked out (see Retry-After)
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    Error:
+      type: object
+      properties: { error: { type: string } }
+    Counter:
+      type: object
+      properties:
+        slug: { type: string }
+        views: { type: integer }
+        likes: { type: integer }
+    PresignRequest:
+      type: object
+      required: [prefix, filename, size, contentType]
+      properties:
+        prefix: { type: string, enum: [img, video, demos, models, files] }
+        filename: { type: string }
+        size: { type: integer }
+        contentType: { type: string }
+        demoName: { type: string, description: 'demos/ only' }
+        demoVersion: { type: string, description: 'demos/ only' }
+        relativePath: { type: string, description: 'demos/ only: path inside the build directory' }
+    PresignResponse:
+      type: object
+      properties:
+        key: { type: string }
+        assetPath: { type: string, description: '/assets/<key>, what content files reference' }
+        publicUrl: { type: string }
+        upload:
+          type: object
+          properties:
+            url: { type: string }
+            method: { type: string }
+            headers: { type: object, additionalProperties: { type: string } }
+            expiresAt: { type: string, format: date-time }
+    Asset:
+      type: object
+      properties:
+        id: { type: integer }
+        key: { type: string }
+        assetPath: { type: string }
+        publicUrl: { type: string }
+        prefix: { type: string }
+        originalName: { type: string }
+        size: { type: integer }
+        contentType: { type: string }
+        sha256: { type: string }
+        createdAt: { type: string }
+    BuildJob:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { type: string, enum: [queued, running, succeeded, failed] }
+        trigger: { type: string, enum: [admin, webhook, mcp] }
+        createdAt: { type: string }
+        startedAt: { type: [string, 'null'] }
+        finishedAt: { type: [string, 'null'] }
+        exitCode: { type: [integer, 'null'] }

@@ -1,6 +1,22 @@
 {
   "name": "admin",
   "private": true,
-  "version": "0.0.0",
-  "description": "Admin SPA placeholder. Implemented in a later phase."
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Admin SPA, embedded into the Go binary under /admin/.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build && node scripts/copy-to-api.mjs",
+    "check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "3.5.42",
+    "vue-router": "5.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8",
+    "typescript": "5.9.3",
+    "vite": "8.2.2",
+    "vue-tsc": "3.3.11"
+  }
 }

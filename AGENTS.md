@@ -222,6 +222,28 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 4. 需要特殊数据（如友链读 `friends.yaml`）时，在 `[page].astro` 里按 `page.id` 分支处理，不要新建独立路由。
 5. 跑 `pnpm -C site build` 确认 `dist/<slug>/index.html` 生成。
 
+### 后端常用命令
+
+在 `api/` 下执行。
+
+| 目的 | 命令 | 说明 |
+|---|---|---|
+| 生成管理员密码哈希 | `go run ./cmd/server hash-password` | argon2id，结果填 `api/.env` 的 `ADMIN_PASSWORD_HASH` |
+| 启动后端 | `go run ./cmd/server` | 读 `api/.env`，监听 `127.0.0.1:8080`，后台在 http://localhost:8080/admin/ |
+| 静态检查与测试 | `go vet ./... && go test ./...` | 测试用临时目录与临时库，不读 `.env` |
+| 构建后台 SPA 并嵌入 | `pnpm build:admin`（仓库根） | 产物复制到 `api/internal/adminui/dist/`，之后重新 `go run`/`go build` |
+| 编译二进制 | `go build -o bin/blog-server ./cmd/server` | `api/bin/` 已 gitignore |
+
+接口清单在 `api/openapi.yaml`，本地联调步骤在 `docs/runbooks/local-dev.md`。
+
+### 上传一个资产的步骤
+
+1. 后端在跑，打开 http://localhost:8080/admin/ 登录。
+2. 媒体库选前缀：图片 `img/`、视频 `video/`、三维模型 `models/`、附件 `files/`、Unity WebGL 或其他整目录构建 `demos/`（需填 demo 名与版本，文件按相对路径放到 `demos/<name>/<version>/` 下）。
+3. 拖入文件。后端校验扩展名白名单、MIME 与大小上限后签发上传地址，浏览器直接 PUT（本地是 Go 的 `/_local/upload/<token>`，生产是 COS 预签名 URL），完成后回传 sha256 入库。
+4. 复制得到的 `/assets/<key>`，写进内容文件。key 由后端生成：`<prefix>/YYYY/MM/<slug>-<rand>.<ext>`，不要手改。
+5. 图片入库前先转 WebP、最长边不超过 2000 像素（第 5.4 节）。
+
 ### 站点常量与样式
 
 - 站名、作者、导航、每页篇数、备案号、引言都在 `site/src/site.config.ts`。

@@ -27,3 +27,7 @@ Thumbs.db
 
 # KaTeX assets copied from node_modules by site/scripts/copy-katex.mjs
 site/public/katex/
+
+# Built admin SPA embedded into the Go binary (pnpm build:admin copies it here)
+api/internal/adminui/dist/*
+!api/internal/adminui/dist/.gitkeep
