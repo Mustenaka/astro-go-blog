@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import { formatDate, getPosts, getWorks } from '@lib/content';
+
+const posts = await getPosts();
+const works = await getWorks();
+---
+
+<Base title="木十 / Mustenaka" description="Unity、实时物理仿真与 AI 应用的技术笔记与作品。">
+  <h1>木十 / Mustenaka</h1>
+  <p>软件工程师，方向是 Unity/C#、实时物理仿真、AI 应用。</p>
+
+  <h2>文章</h2>
+  <ul>
+    {
+      posts.map((post) => (
+        <li>
+          <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+          <small> · {formatDate(post.data.date)}</small>
+          {post.data.draft && <small> · 草稿</small>}
+          <br />
+          <span>{post.data.description}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>作品</h2>
+  <ul>
+    {
+      works.map((work) => (
+        <li>
+          <a href={`/works/${work.id}/`}>{work.data.title}</a>
+          <small> · {work.data.status}</small>
+          <br />
+          <span>{work.data.summary}</span>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

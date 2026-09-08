@@ -1,0 +1,23 @@
+---
+title: 岛屿示例
+description: 在 MDX 里引入一个 Vue 组件，只有滚动到可见时才在浏览器中激活。
+date: 2026-09-03
+tags: [vue, islands]
+categories: [站点建设]
+---
+
+import Counter from '@components/Counter.vue';
+
+下面是一个最简单的 Vue 岛屿。页面本身仍然是静态 HTML，只有这个计数器会加载 JavaScript。
+
+<Counter client:visible start={10} />
+
+写法：
+
+```mdx
+import Counter from '@components/Counter.vue';
+
+<Counter client:visible start={10} />
+```
+
+`@components/` 指向 `site/src/components/`，在 `site/tsconfig.json` 里配置。

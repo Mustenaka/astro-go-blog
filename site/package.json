@@ -1,0 +1,33 @@
+{
+  "name": "site",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "7.3.0",
+    "@astrojs/mdx": "8.0.0",
+    "@astrojs/rss": "4.0.19",
+    "@astrojs/sitemap": "3.7.4",
+    "@astrojs/vue": "7.0.2",
+    "@tailwindcss/vite": "4.3.3",
+    "astro": "7.3.1",
+    "katex": "0.18.7",
+    "rehype-katex": "7.0.1",
+    "remark-math": "6.0.0",
+    "tailwindcss": "4.3.3",
+    "vue": "3.5.42"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3",
+    "vite": "8.2.2"
+  }
+}

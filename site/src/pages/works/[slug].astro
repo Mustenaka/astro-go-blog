@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getWorks } from '@lib/content';
+import { assetUrl } from '@lib/assets';
+
+export async function getStaticPaths() {
+  const works = await getWorks();
+  return works.map((work) => ({ params: { slug: work.id }, props: { work } }));
+}
+
+const { work } = Astro.props;
+const { Content } = await render(work);
+const { data } = work;
+---
+
+<Base title={data.title} description={data.summary}>
+  <article>
+    <h1>{data.title}</h1>
+    <p>{data.summary}</p>
+    <img src={assetUrl(data.cover)} alt={data.title} />
+    <dl>
+      <dt>时间</dt>
+      <dd>{data.period.from}{data.period.to ? ` – ${data.period.to}` : ' – 至今'}</dd>
+      {data.role && <dt>角色</dt>}
+      {data.role && <dd>{data.role}</dd>}
+      <dt>技术栈</dt>
+      <dd>{data.stack.join(', ')}</dd>
+      <dt>状态</dt>
+      <dd>{data.status}</dd>
+      {data.links?.repo && <dt>仓库</dt>}
+      {data.links?.repo && <dd><a href={data.links.repo}>{data.links.repo}</a></dd>}
+    </dl>
+    <Content />
+  </article>
+</Base>

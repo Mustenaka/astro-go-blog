@@ -1,0 +1,9 @@
+# Each entry needs a unique `id`. Fields: id, name, url, description (optional), avatar (optional).
+- id: astro
+  name: Astro
+  url: https://astro.build
+  description: 本站使用的静态站点框架。
+- id: unity-blog
+  name: Unity Blog
+  url: https://blog.unity.com
+  description: Unity 官方博客。

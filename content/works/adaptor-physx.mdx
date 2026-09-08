@@ -1,0 +1,33 @@
+---
+title: AdaptorPhysX
+summary: 面向 Unity 的实时物理仿真适配层，把 SPH 流体、布料等自研求解器接入 Unity 场景。
+period:
+  from: 2024-06
+role: 独立开发
+stack: [Unity, C#, Compute Shader, SPH]
+links:
+  repo: https://github.com/Mustenaka/AdaptorPhysX
+cover: /assets/img/2026/09/adaptor-physx-cover.webp
+gallery:
+  - type: image
+    src: /assets/img/2026/09/adaptor-physx-01.webp
+    caption: SPH 流体在 Unity 中的实时渲染
+featured: true
+order: 10
+status: active
+---
+
+## 简介
+
+AdaptorPhysX 是一个 Unity 物理仿真适配项目。目标是把自研的粒子法求解器（SPH 及其变体）以尽量少的胶水代码接入 Unity 的场景、渲染与调试工具链。
+
+## 主要内容
+
+- 粒子系统数据结构与 GPU 缓冲区管理
+- 邻居搜索（均匀网格）
+- 压力、粘性与表面张力项
+- 与 Unity 物理场景的碰撞交互
+
+## 状态
+
+持续开发中。演示（`demo` 字段）留到后续阶段接入。

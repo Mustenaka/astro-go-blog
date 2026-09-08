@@ -1,0 +1,57 @@
+---
+title: 你好，Astro
+description: 新博客的第一篇示例文章，用来检查标题、列表、引用、表格和图片的渲染。
+date: 2026-09-01
+tags: [astro, 博客]
+categories: [站点建设]
+cover: /assets/img/2026/09/sample.webp
+legacyUrls:
+  - /index.php/2026/09/01/hello-astro/
+---
+
+这是一篇普通文章，作为以后写文章的模板。front matter 的字段定义见仓库根目录的 `AGENTS.md` 第 5.1 节。
+
+## 二级标题
+
+正文段落。行内代码写成 `const x = 1`，链接写成 [Astro 官网](https://astro.build)。
+
+### 三级标题
+
+无序列表：
+
+- 第一项
+- 第二项
+  - 嵌套项
+- 第三项
+
+有序列表：
+
+1. 安装依赖
+2. 启动开发服务器
+3. 打开浏览器
+
+## 引用
+
+> 内容在 Git 里，后端不存文章，资产走 `/assets/` 约定。
+>
+> —— `docs/decisions/0001-architecture.md`
+
+## 表格
+
+| 字段 | 类型 | 必填 |
+| --- | --- | --- |
+| title | string | 是 |
+| date | date | 是 |
+| draft | boolean | 否 |
+
+## 图片
+
+图片路径一律写 `/assets/...`，构建时会被改写成 CDN 地址：
+
+![示例图片](/assets/img/2026/09/sample.webp)
+
+也可以直接用 HTML 标签，同样会被改写：
+
+<img src="/assets/img/2026/09/sample.webp" alt="示例图片（HTML 写法）" />
+
+附件链接同理：[下载示例文件](/assets/files/2026/09/sample.zip)。

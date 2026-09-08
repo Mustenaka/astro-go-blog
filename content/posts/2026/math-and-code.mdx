@@ -1,0 +1,83 @@
+---
+title: 公式与代码块
+description: 检查 KaTeX 行内公式、块公式，以及 C#、Go、TypeScript 三种语言的代码高亮。
+date: 2026-09-02
+tags: [katex, shiki, sph]
+categories: [物理仿真]
+math: true
+---
+
+## 行内公式
+
+SPH 中核函数的基本形式是 $W(r, h)$，密度估计写作 $\rho_i = \sum_j m_j W(|\mathbf{r}_i - \mathbf{r}_j|, h)$。
+
+## 块公式
+
+Navier–Stokes 方程的动量部分：
+
+$$
+\frac{D\mathbf{v}}{Dt} = -\frac{1}{\rho}\nabla p + \nu \nabla^2 \mathbf{v} + \mathbf{g}
+$$
+
+Poly6 核函数：
+
+$$
+W_{\text{poly6}}(r, h) =
+\frac{315}{64\pi h^9}
+\begin{cases}
+(h^2 - r^2)^3 & 0 \le r \le h \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+## 代码块
+
+C#（Unity）：
+
+```csharp
+using UnityEngine;
+
+public sealed class Particle : MonoBehaviour
+{
+    public Vector3 Velocity;
+
+    private void FixedUpdate()
+    {
+        Velocity += Physics.gravity * Time.fixedDeltaTime;
+        transform.position += Velocity * Time.fixedDeltaTime;
+    }
+}
+```
+
+Go：
+
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+func poly6(r, h float64) float64 {
+	if r < 0 || r > h {
+		return 0
+	}
+	d := h*h - r*r
+	return 315 / (64 * math.Pi * math.Pow(h, 9)) * d * d * d
+}
+
+func main() {
+	fmt.Println(poly6(0.5, 1.0))
+}
+```
+
+TypeScript：
+
+```ts
+export function poly6(r: number, h: number): number {
+  if (r < 0 || r > h) return 0;
+  const d = h * h - r * r;
+  return (315 / (64 * Math.PI * h ** 9)) * d ** 3;
+}
+```

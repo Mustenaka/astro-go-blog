@@ -1,0 +1,28 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatDate, getPosts } from '@lib/content';
+import { assetUrl } from '@lib/assets';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={post.data.description} lang={post.data.lang} math={post.data.math}>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p>
+      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+      {post.data.updated && <span> · 更新于 {formatDate(post.data.updated)}</span>}
+      {post.data.categories.length > 0 && <span> · {post.data.categories.join(' / ')}</span>}
+    </p>
+    {post.data.tags.length > 0 && <p>标签：{post.data.tags.join(', ')}</p>}
+    {post.data.cover && <img src={assetUrl(post.data.cover)} alt="" />}
+    <Content />
+  </article>
+</Base>
