@@ -196,6 +196,8 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 
 根 `package.json` 提供同名快捷方式：`pnpm dev`、`pnpm build`、`pnpm check`、`pnpm preview`。
 
+本机按服务器方式（WSL 里的 Nginx + Go）跑一遍：`docs/runbooks/local-wsl.md`。
+
 内容集合的定义在 `site/src/content.config.ts`。它从 `../content/` 读取，front matter 用 zod `strictObject` 校验：字段类型错误或出现未定义字段，`build` 与 `dev` 都会失败并指出文件与字段。
 
 ### 新增一篇文章的完整步骤
@@ -306,7 +308,7 @@ Keystatic 保存会规范化 front matter（字段顺序、把可选布尔与默
 
 1. 新建 `site/src/demos/<name>/index.vue`，资源在 `onMounted` 创建、`onBeforeUnmount` 全部释放（参考 `particles`）。
 2. `site/src/demos/registry.ts` 加一行 `<name>: () => import('./<name>/index.vue')`。
-3. 作品页用 `demo: { kind: island, name: <name> }`；文章里 `import Demo from '@components/Demo.astro'` 后 `<Demo name="<name>" />`。名字未注册时构建失败。
+3. 作品页用 `demo: { kind: island, name: <name> }`；文章里直接写 `<Demo name="<name>" />`（不用 import）。名字未注册时构建失败。
 4. three.js 只能出现在 demo 的 chunk 里，不要在公共组件静态 import。细节与 Unity 构建导出设置见 `docs/demos.md`。
 
 ### 新增资产

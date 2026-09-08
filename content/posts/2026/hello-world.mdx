@@ -1,0 +1,42 @@
+---
+title: Hello World
+description: 本机 Linux 打包运行的测试文章：从这里出发点一遍站点的每个入口。
+date: 2026-09-09
+tags: [hello, 测试]
+categories: [站点建设]
+---
+
+你好，世界。这一页是本机 Linux（WSL + Nginx + Go）打包运行的测试入口。
+
+## 前台
+
+- [首页](/) · [文章列表](/posts/) · [标签](/tags/) · [分类](/categories/) · [归档](/archive/)
+- [作品集](/works/)：`/works/adaptor-physx/` 有 three.js 粒子演示，`/works/unity-webgl-mock/` 有点击加载的 iframe。
+- [关于](/about/) · [友链](/friends/) · [搜索](/search/)（试试搜"公式"或"岛屿"）
+- 示例文章：[你好，Astro](/posts/hello-astro/)、[公式与代码块](/posts/math-and-code/)、[岛屿示例](/posts/island-demo/)、[嵌入 demo 与视频](/posts/demo-showcase/)
+
+## 机器入口
+
+- [RSS 全文](/rss.xml) · [sitemap](/sitemap-index.xml) · [robots.txt](/robots.txt)
+- [llms.txt](/llms.txt) · [llms-full.txt](/llms-full.txt) · [works.json](/works.json)
+- 本文的 Markdown 原文：[hello-world.md](/posts/hello-world.md)
+
+## 后端
+
+- 文章页底部的浏览数与点赞按钮走 `/api/v1/`，由 Nginx 转发给 Go。
+- 后台在 `http://localhost:8080/admin/`（不经 Nginx，模拟 SSH 隧道直连），用户名 `admin`。
+- 健康检查：`http://localhost:8080/healthz`。
+
+## 一段公式和代码
+
+行内公式 $E = mc^2$（这篇文章没有设 `math: true`，所以只会显示为文本，对比[公式与代码块](/posts/math-and-code/)）。
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, World")
+}
+```
