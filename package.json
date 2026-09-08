@@ -1,0 +1,14 @@
+{
+  "name": "astro-go-blog",
+  "private": true,
+  "packageManager": "pnpm@10.8.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "pnpm -C site dev",
+    "build": "pnpm -C site build",
+    "check": "pnpm -C site check",
+    "preview": "pnpm -C site preview"
+  }
+}

@@ -1,0 +1,26 @@
+# Node
+node_modules/
+dist/
+.astro/
+*.tsbuildinfo
+.pnpm-store/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Go
+api/data/
+api/bin/
+api/*.exe
+api/server
+api/mcp
+api/cmd/server/server
+api/cmd/mcp/mcp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

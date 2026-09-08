@@ -1,0 +1,6 @@
+{
+  "name": "admin",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Admin SPA placeholder. Implemented in a later phase."
+}

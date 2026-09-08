@@ -1,0 +1,7 @@
+packages:
+  - site
+  - admin
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
