@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date",
+      "description": "YYYY-MM-DD"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "additionalProperties": false,
+  "$id": "https://mustenaka.cn/schema/pages.schema.json",
+  "title": "pages",
+  "description": "Front matter of content/pages/<slug>.mdx (AGENTS.md 5.3)."
+}

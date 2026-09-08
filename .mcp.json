@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "blog": {
+      "command": "go",
+      "args": ["run", "-C", "api", "./cmd/mcp"],
+      "env": {}
+    }
+  }
+}

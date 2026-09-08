@@ -6,6 +6,7 @@ package storage
 import (
 	"context"
 	"errors"
+	"io"
 	"time"
 )
 
@@ -37,6 +38,9 @@ type Storage interface {
 	List(ctx context.Context, prefix string) ([]ObjectInfo, error)
 	// Stat returns metadata for key or ErrNotFound.
 	Stat(ctx context.Context, key string) (*ObjectInfo, error)
+	// Put stores an object directly. Used by local tooling (the MCP server); browser uploads
+	// never go through this path.
+	Put(ctx context.Context, key, contentType string, r io.Reader, size int64) error
 }
 
 // ErrNotFound is returned by Stat for missing objects.

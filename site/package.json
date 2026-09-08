@@ -5,11 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/copy-katex.mjs && astro dev",
-    "build": "node scripts/copy-katex.mjs && astro build && pagefind --site dist && node scripts/redirects.mjs",
+    "build": "node scripts/copy-katex.mjs && node --experimental-strip-types --no-warnings scripts/export-schema.mjs && astro build && pagefind --site dist && node scripts/redirects.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
-    "postinstall": "node scripts/copy-katex.mjs"
+    "postinstall": "node scripts/copy-katex.mjs",
+    "schema": "node --experimental-strip-types --no-warnings scripts/export-schema.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.0",

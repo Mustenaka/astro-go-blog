@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "YYYY-MM-DD"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date",
+      "description": "YYYY-MM-DD"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "draft": {
+      "default": false,
+      "type": "boolean"
+    },
+    "cover": {
+      "type": "string",
+      "pattern": "^\\/assets\\/.*"
+    },
+    "math": {
+      "default": false,
+      "type": "boolean"
+    },
+    "lang": {
+      "default": "zh-CN",
+      "type": "string"
+    },
+    "series": {
+      "type": "string"
+    },
+    "legacyUrls": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^\\/.*"
+      }
+    },
+    "toc": {
+      "default": true,
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "date",
+    "tags",
+    "categories"
+  ],
+  "additionalProperties": false,
+  "$id": "https://mustenaka.cn/schema/posts.schema.json",
+  "title": "posts",
+  "description": "Front matter of content/posts/<year>/<slug>.mdx (AGENTS.md 5.1). Dates are YYYY-MM-DD."
+}

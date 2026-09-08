@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "description": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "url"
+  ],
+  "additionalProperties": false,
+  "$id": "https://mustenaka.cn/schema/friends.schema.json",
+  "title": "friends",
+  "description": "One entry of content/data/friends.yaml."
+}

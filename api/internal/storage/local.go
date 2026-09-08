@@ -286,3 +286,29 @@ func (l *Local) SetBases(publicBase, uploadBase string) {
 	l.publicBase = strings.TrimRight(publicBase, "/")
 	l.uploadBase = strings.TrimRight(uploadBase, "/")
 }
+
+// Put writes an object straight to disk.
+func (l *Local) Put(_ context.Context, key, _ string, r io.Reader, size int64) error {
+	p, err := l.pathFor(key)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+		return err
+	}
+	tmp := p + ".part"
+	f, err := os.Create(tmp)
+	if err != nil {
+		return err
+	}
+	n, err := io.Copy(f, r)
+	f.Close()
+	if err != nil || (size > 0 && n != size) {
+		os.Remove(tmp)
+		if err == nil {
+			err = fmt.Errorf("wrote %d bytes, expected %d", n, size)
+		}
+		return err
+	}
+	return os.Rename(tmp, p)
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -116,4 +117,29 @@ func (c *COS) Stat(ctx context.Context, key string) (*ObjectInfo, error) {
 		ct = ContentTypeFor(key)
 	}
 	return &ObjectInfo{Key: key, Size: size, ModTime: mod, ContentType: ct}, nil
+}
+
+// Put uploads through a pre-signed URL, exactly like a browser would.
+func (c *COS) Put(ctx context.Context, key, contentType string, r io.Reader, size int64) error {
+	up, err := c.Presign(ctx, key, contentType, size)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, up.URL, r)
+	if err != nil {
+		return err
+	}
+	req.ContentLength = size
+	for k, v := range up.Headers {
+		req.Header.Set(k, v)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("cos put: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("cos put: status %d", resp.StatusCode)
+	}
+	return nil
 }

@@ -244,6 +244,36 @@ title 必填，description 与 updated 可选。固定页面：`about`（简历�
 4. 复制得到的 `/assets/<key>`，写进内容文件。key 由后端生成：`<prefix>/YYYY/MM/<slug>-<rand>.<ext>`，不要手改。
 5. 图片入库前先转 WebP、最长边不超过 2000 像素（第 5.4 节）。
 
+## 11. AI 操作指南
+
+### 三种改内容的方式
+
+| 方式 | 何时用 |
+|---|---|
+| 直接写 `content/` 下的文件 | 改正文、改字段、批量迁移、任何"看得见文件"的改动。写完跑 `pnpm -C site build` |
+| MCP 工具（`.mcp.json` 的 `blog` 服务器） | 在 Claude Code 里端到端完成"写文章 → 传图 → 校验 → 触发构建"。工具：`list_posts`、`get_post`、`create_post`、`update_post`、`create_work`、`update_work`、`upload_asset`、`list_assets`、`validate_content`、`trigger_build`、`build_status`、`get_stats` |
+| 后台 http://localhost:8080/admin/ | 人手上传媒体、看构建日志与统计 |
+
+三者写出的文件格式一致，front matter 都由 `content/schema/*.schema.json`（从 `site/src/content/schemas.ts` 导出）校验。改 schema 只改 `schemas.ts`，再跑 `pnpm -C site schema`。详细对应关系与排错见 `docs/ai-operations.md`。
+
+### 写文章的检查清单
+
+1. `description` 必须写，一两句话，会出现在列表、OG、RSS、llms.txt。
+2. `tags` 优先复用已有的（`list_posts` 或 `/tags/` 页面），`categories` 一到两个。
+3. 有公式就设 `math: true`；代码块写语言标识。
+4. 图片先传后引：`upload_asset`（或后台）拿到 `/assets/img/YYYY/MM/<name>-<rand>.webp`，再写进正文；不要写还不存在的路径。
+5. slug 让工具从标题生成（拼音或英文），需要时显式指定；一旦发布不再改。
+6. 未完成的文章 `draft: true`。
+7. 发布前 `validate_content`（或 `pnpm -C site check` + `build`），通过后再 `trigger_build`。
+
+### 禁止事项
+
+- 不改已有文章的 `legacyUrls`，不删除它们（会断 301）。
+- 不删旧文章；下线用 `draft: true`。
+- 不改已发布文章的 slug（文件名）。
+- 不手写 `/assets/` 下的 key，不把大文件放进 Git。
+- 不碰 `content/schema/*.json`，它们是生成文件。
+
 ### 站点常量与样式
 
 - 站名、作者、导航、每页篇数、备案号、引言都在 `site/src/site.config.ts`。
